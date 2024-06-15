@@ -4,7 +4,8 @@ from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
 
 async def get_main_menu() -> ReplyKeyboardMarkup:
     btn_subscribe = KeyboardButton(text='ПОДПИСКА')
-    main_menu = ReplyKeyboardMarkup(keyboard=[[btn_subscribe]], resize_keyboard=True)
+    btn_profile = KeyboardButton(text='ПРОФИЛЬ')
+    main_menu = ReplyKeyboardMarkup(keyboard=[[btn_subscribe, btn_profile]], resize_keyboard=True)
     return main_menu
 
 
