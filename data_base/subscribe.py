@@ -19,6 +19,7 @@ def create_subscription(tg_user_id: int, duration: int) -> None:
     if user:
         user.subscription_start_date = datetime.now()
         user.subscription_end_date = datetime.now() + timedelta(days=duration)
+        user.banned = False
         Base.db_session.commit()
     else:
         pass
@@ -42,6 +43,7 @@ def renew_subscription(tg_user_id: int, duration: int) -> None:
         else:
             user.subscription_start_date = datetime.now()
             user.subscription_end_date = datetime.now() + timedelta(days=duration)
+        user.banned = False
         Base.db_session.commit()
     else:
         pass

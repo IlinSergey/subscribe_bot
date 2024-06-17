@@ -1,13 +1,13 @@
 from aiogram import Bot, F, Router
-from aiogram.types import (CallbackQuery, ChatJoinRequest, Message,
-                           PreCheckoutQuery)
+from aiogram.types import CallbackQuery, Message, PreCheckoutQuery
 
 import config_data.subscribe_data as subscribe_data
 from config_data.config import load_config
 from data_base.subscribe import (create_subscription, get_subscription_status,
                                  renew_subscription)
+from data_base.user import get_user
 from keyboards.main_menu import get_main_menu, get_subscribe_menu
-from lexicon.lexicon import LEXICON_RU
+from services.subscribe_control import unban_user
 
 config = load_config()
 
@@ -61,9 +61,12 @@ async def pre_checkout_query_handler(pre_checkout_query: PreCheckoutQuery, bot: 
 
 
 @router.message()
-async def successful_payment(message: Message) -> None:
-    is_subscribed = get_subscription_status(message.from_user.id)
-    keyboard = get_main_menu()
+async def successful_payment(message: Message, bot: Bot) -> None:
+    user = get_user(tg_user_id=message.from_user.id)
+    is_subscribed = user.is_subscription_active()
+    keyboard = await get_main_menu()
+    if user.banned:
+        unban_user(bot=bot, user_id=message.from_user.id)
     match message.successful_payment.invoice_payload:
         case 'month_sub':
             if is_subscribed:
@@ -81,19 +84,3 @@ async def successful_payment(message: Message) -> None:
                 await message.answer(text='Оформлена подписка на год', reply_markup=keyboard)
         case _:
             await message.answer(text='Оплата прошла успешно', reply_markup=keyboard)
-
-
-@router.chat_join_request(F.chat.id == config.channel_id.channel_id)
-async def approve_request(chat_join: ChatJoinRequest, bot: Bot) -> None:
-    if not get_subscription_status(chat_join.from_user.id):
-        await bot.send_message(
-            chat_id=chat_join.from_user.id,
-            text=LEXICON_RU['subscribe_nided'],
-            reply_markup=await get_subscribe_menu()
-            )
-    else:
-        await bot.send_message(
-            chat_id=chat_join.from_user.id,
-            text=LEXICON_RU['thanks']
-            )
-        await chat_join.approve()

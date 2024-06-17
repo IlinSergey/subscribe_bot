@@ -17,6 +17,13 @@ class User(Base):
     subscription_start_date: Mapped[datetime] = mapped_column(nullable=True)
     subscription_end_date: Mapped[datetime] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    banned: Mapped[bool] = mapped_column(nullable=False, default=False)
+
+    def is_subscription_active(self) -> bool:
+        if self.subscription_end_date and self.subscription_end_date > datetime.now():
+            return True
+        else:
+            return False
 
     def __repr__(self) -> str:
         return f'User(id={self.tg_user_id}, username={self.username})'
