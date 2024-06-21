@@ -13,8 +13,8 @@ router: Router = Router()
 @router.message(CommandStart())
 async def process_start_command(message: Message) -> None:
     main_menu = await get_main_menu()
-    if get_user(tg_user_id=message.from_user.id) is None:
-        create_user(tg_user=message.from_user)
+    if await get_user(tg_user_id=message.from_user.id) is None:
+        await create_user(tg_user=message.from_user)
     await message.answer(text=LEXICON_RU['/start'], reply_markup=main_menu)
 
 
@@ -25,9 +25,9 @@ async def process_help_command(message: Message) -> None:
 
 @router.message(F.text == 'ПРОФИЛЬ')
 async def profile(message: Message) -> None:
-    subscription_status = get_subscription_status(message.from_user.id)
+    subscription_status = await get_subscription_status(message.from_user.id)
     if subscription_status:
-        end_date = get_end_date(message.from_user.id)
+        end_date = await get_end_date(message.from_user.id)
         await message.answer(f'✅ Ваша подписка заканчивается: {end_date}')
     else:
         await message.answer('❌ Ваша подписка неактивна')

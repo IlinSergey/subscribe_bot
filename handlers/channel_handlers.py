@@ -1,4 +1,4 @@
-from aiogram import Bot, F, Router
+from aiogram import Bot, Router
 from aiogram.types import ChatJoinRequest
 
 from config_data.config import Config, load_config
@@ -11,9 +11,9 @@ router: Router = Router()
 config: Config = load_config()
 
 
-@router.chat_join_request(F.chat.id == config.channel_id.channel_id)
+@router.chat_join_request()
 async def approve_request(chat_join: ChatJoinRequest, bot: Bot) -> None:
-    if not get_subscription_status(chat_join.from_user.id):
+    if not await get_subscription_status(chat_join.from_user.id):
         await bot.send_message(
             chat_id=chat_join.from_user.id,
             text=LEXICON_RU['subscribe_nided'],

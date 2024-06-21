@@ -18,7 +18,7 @@ router: Router = Router()
 @router.message(F.text == 'ПОДПИСКА')
 async def subscribe(message: Message) -> None:
     subscribe_menu = await get_subscribe_menu()
-    if get_subscription_status(message.from_user.id):
+    if await get_subscription_status(message.from_user.id):
         await message.answer(text='Выберите на какой срок продлить действующею подписку:', reply_markup=subscribe_menu)
     else:
         await message.answer(text='Варианты подписки:', reply_markup=subscribe_menu)
@@ -62,25 +62,25 @@ async def pre_checkout_query_handler(pre_checkout_query: PreCheckoutQuery, bot: 
 
 @router.message()
 async def successful_payment(message: Message, bot: Bot) -> None:
-    user = get_user(tg_user_id=message.from_user.id)
+    user = await get_user(tg_user_id=message.from_user.id)
     is_subscribed = user.is_subscription_active()
     keyboard = await get_main_menu()
     if user.banned:
-        unban_user(bot=bot, user_id=message.from_user.id)
+        await unban_user(bot=bot, user_id=message.from_user.id)
     match message.successful_payment.invoice_payload:
         case 'month_sub':
             if is_subscribed:
-                renew_subscription(tg_user_id=message.from_user.id, duration=30)
+                await renew_subscription(tg_user_id=message.from_user.id, duration=30)
                 await message.answer(text='Продлена подписка на месяц', reply_markup=keyboard)
             else:
-                create_subscription(tg_user_id=message.from_user.id, duration=30)
+                await create_subscription(tg_user_id=message.from_user.id, duration=30)
                 await message.answer(text='Оформлена подписка на месяц', reply_markup=keyboard)
         case 'year_sub':
             if is_subscribed:
-                renew_subscription(tg_user_id=message.from_user.id, duration=365)
+                await renew_subscription(tg_user_id=message.from_user.id, duration=365)
                 await message.answer(text='Продлена подписка на год', reply_markup=keyboard)
             else:
-                create_subscription(tg_user_id=message.from_user.id, duration=365)
+                await create_subscription(tg_user_id=message.from_user.id, duration=365)
                 await message.answer(text='Оформлена подписка на год', reply_markup=keyboard)
         case _:
             await message.answer(text='Оплата прошла успешно', reply_markup=keyboard)

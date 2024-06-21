@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
 from data_base.db import Base
-from data_base.models import User
+from data_base.user import get_user
 
 
-def create_subscription(tg_user_id: int, duration: int) -> None:
+async def create_subscription(tg_user_id: int, duration: int) -> None:
     """
     Create a subscription for the user with the specified 'tg_user_id' and the provided 'duration'.
 
@@ -15,17 +15,17 @@ def create_subscription(tg_user_id: int, duration: int) -> None:
     Returns:
         None
     """
-    user = Base.db_session.query(User).filter(User.tg_user_id == tg_user_id).first()
+    user = await get_user(tg_user_id=tg_user_id)
     if user:
         user.subscription_start_date = datetime.now()
         user.subscription_end_date = datetime.now() + timedelta(days=duration)
         user.banned = False
-        Base.db_session.commit()
+        await Base.db_session.commit()
     else:
         pass
 
 
-def renew_subscription(tg_user_id: int, duration: int) -> None:
+async def renew_subscription(tg_user_id: int, duration: int) -> None:
     """
     Renews a subscription for a user with the specified Telegram user ID.
 
@@ -36,7 +36,7 @@ def renew_subscription(tg_user_id: int, duration: int) -> None:
     Returns:
         None: This function does not return anything.
     """
-    user = Base.db_session.query(User).filter(User.tg_user_id == tg_user_id).first()
+    user = await get_user(tg_user_id=tg_user_id)
     if user:
         if user.subscription_end_date and user.subscription_end_date > datetime.now():
             user.subscription_end_date += timedelta(days=duration)
@@ -44,12 +44,12 @@ def renew_subscription(tg_user_id: int, duration: int) -> None:
             user.subscription_start_date = datetime.now()
             user.subscription_end_date = datetime.now() + timedelta(days=duration)
         user.banned = False
-        Base.db_session.commit()
+        await Base.db_session.commit()
     else:
         pass
 
 
-def get_end_date(tg_user_id: int) -> str | None:
+async def get_end_date(tg_user_id: int) -> str | None:
     """
     Get the end date of a subscription for a user with the specified Telegram user ID.
 
@@ -59,7 +59,7 @@ def get_end_date(tg_user_id: int) -> str | None:
     Returns:
         str | None: The end date of the subscription or None if the user has no subscription.
     """
-    user = Base.db_session.query(User).filter(User.tg_user_id == tg_user_id).first()
+    user = await get_user(tg_user_id=tg_user_id)
     if user:
         if user.subscription_end_date:
             return user.subscription_end_date.date().strftime('%d.%m.%Y')
@@ -69,7 +69,7 @@ def get_end_date(tg_user_id: int) -> str | None:
         return None
 
 
-def get_subscription_status(tg_user_id: int) -> bool:
+async def get_subscription_status(tg_user_id: int) -> bool:
     """
     Get the subscription status of a user with the specified Telegram user ID.
 
@@ -79,7 +79,7 @@ def get_subscription_status(tg_user_id: int) -> bool:
     Returns:
         bool: True if the user has a subscription, False otherwise.
     """
-    user = Base.db_session.query(User).filter(User.tg_user_id == tg_user_id).first()
+    user = await get_user(tg_user_id=tg_user_id)
     if user:
         if user.subscription_end_date and user.subscription_end_date > datetime.now():
             return True

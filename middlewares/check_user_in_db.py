@@ -13,8 +13,8 @@ class CheckUserInDBMiddleware(BaseMiddleware):
             event: TelegramObject,
             data: dict[str, Any]
     ) -> Any:
-        if get_user(tg_user_id=event.from_user.id) is None:
-            create_user(tg_user=event.from_user)
+        if await get_user(tg_user_id=event.from_user.id) is None:
+            await create_user(tg_user=event.from_user)
             await handler(event, data)
         else:
             await handler(event, data)

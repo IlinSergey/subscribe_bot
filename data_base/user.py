@@ -1,10 +1,11 @@
 from aiogram.types import User as TgUser
+from sqlalchemy import select
 
 from data_base.db import Base
 from data_base.models import User
 
 
-def get_user(tg_user_id: int) -> User | None:
+async def get_user(tg_user_id: int) -> User | None:
     """
     Retrieve a user from the database based on the provided 'tg_user_id'.
 
@@ -14,10 +15,12 @@ def get_user(tg_user_id: int) -> User | None:
     Returns:
         User or None: The user with the specified 'tg_user_id' or None if not found.
     """
-    return Base.db_session.query(User).filter(User.tg_user_id == tg_user_id).first()
+    result = await Base.db_session.execute(select(User).where(User.tg_user_id == tg_user_id))
+    result = result.scalars().first()
+    return result
 
 
-def create_user(tg_user: TgUser) -> None:
+async def create_user(tg_user: TgUser) -> None:
     """
     Create a new user in the database based on the provided 'tg_user'.
 
@@ -34,4 +37,4 @@ def create_user(tg_user: TgUser) -> None:
         last_name=tg_user.last_name
     )
     Base.db_session.add(user)
-    Base.db_session.commit()
+    await Base.db_session.commit()

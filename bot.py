@@ -16,7 +16,8 @@ from services.subscribe_control import check_subscription
 
 async def main() -> None:
 
-    Base.metadata.create_all(bind=Base.engine)
+    async with Base.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     config: Config = load_config()
 
@@ -25,15 +26,13 @@ async def main() -> None:
 
     dp.message.middleware(CheckUserInDBMiddleware())
 
-    dp.include_router(user_handlers.router)
     dp.include_router(channel_handlers.router)
+    dp.include_router(user_handlers.router)
     dp.include_router(subscribe_handlers.router)
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(check_subscription, IntervalTrigger(minutes=1), args=[bot])
     scheduler.start()
-
-    check_subscription(bot)
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)
