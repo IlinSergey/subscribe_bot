@@ -12,7 +12,7 @@ from data_base.db import Base
 from handlers import channel_handlers, subscribe_handlers, user_handlers
 from middlewares.check_chat_id import CheckChatIdMiddleware
 from middlewares.check_user_in_db import CheckUserInDBMiddleware
-from services.subscribe_control import check_subscription
+from services.subscribe_control import check_subscription, subscribe_renewal_reminder
 
 
 async def main() -> None:
@@ -34,6 +34,8 @@ async def main() -> None:
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(check_subscription, IntervalTrigger(minutes=1), args=[bot])
+    scheduler.add_job(subscribe_renewal_reminder, IntervalTrigger(minutes=1), args=[bot])
+
     scheduler.start()
 
     try:

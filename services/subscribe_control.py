@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from aiogram import Bot
@@ -7,6 +8,8 @@ from sqlalchemy import select
 from config_data.config import Config, load_config
 from data_base.db import Base
 from data_base.models import User
+from keyboards.main_menu import get_subscribe_menu
+from lexicon.lexicon import LEXICON_RU
 
 config: Config = load_config()
 
@@ -68,3 +71,31 @@ async def check_admins(bot: Bot) -> list[int]:
     """
     admins = await bot.get_chat_administrators(chat_id=config.channel_id.channel_id)
     return [admin.user.id for admin in admins]
+
+
+async def subscribe_renewal_reminder(bot: Bot, expire: int = 1) -> None:
+    """
+    Sends a subscription renewal reminder to all users who are not banned and their subscription is about to expire.
+
+    Args:
+        bot (Bot): The Telegram bot instance.
+
+    Returns:
+        None
+    """
+    result = await Base.db_session.execute(select(User))
+    users = result.scalars().all()
+    current_date = datetime.datetime.now().date()
+    for user in users:
+        if not user.banned:
+            sub_end_date = user.subscription_end_date
+            if sub_end_date:
+                time_difference = sub_end_date.date() - current_date
+                if time_difference.days == expire:
+                    try:
+                        await bot.send_message(
+                            chat_id=user.tg_user_id,
+                            text=LEXICON_RU['sub_remind'],
+                            reply_markup=await get_subscribe_menu())
+                    except TelegramError as err:
+                        logging.error(err)
