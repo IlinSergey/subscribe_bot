@@ -10,6 +10,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from config_data.config import Config, load_config
 from data_base.db import Base
 from handlers import channel_handlers, subscribe_handlers, user_handlers
+from middlewares.check_chat_id import CheckChatIdMiddleware
 from middlewares.check_user_in_db import CheckUserInDBMiddleware
 from services.subscribe_control import check_subscription
 
@@ -24,6 +25,7 @@ async def main() -> None:
     bot: Bot = Bot(token=config.tg_bot.token)
     dp: Dispatcher = Dispatcher(bot=bot)
 
+    dp.message.middleware(CheckChatIdMiddleware())
     dp.message.middleware(CheckUserInDBMiddleware())
 
     dp.include_router(channel_handlers.router)
