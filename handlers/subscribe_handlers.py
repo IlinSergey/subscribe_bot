@@ -72,15 +72,20 @@ async def successful_payment(message: Message, bot: Bot) -> None:
             if is_subscribed:
                 await renew_subscription(tg_user_id=message.from_user.id, duration=30)
                 await message.answer(text='Продлена подписка на месяц', reply_markup=keyboard)
+                await message.delete()
             else:
                 await create_subscription(tg_user_id=message.from_user.id, duration=30)
                 await message.answer(text='Оформлена подписка на месяц', reply_markup=keyboard)
+                await message.delete()
         case 'year_sub':
             if is_subscribed:
                 await renew_subscription(tg_user_id=message.from_user.id, duration=365)
                 await message.answer(text='Продлена подписка на год', reply_markup=keyboard)
+                await message.delete()
             else:
                 await create_subscription(tg_user_id=message.from_user.id, duration=365)
                 await message.answer(text='Оформлена подписка на год', reply_markup=keyboard)
+                await message.delete()
         case _:
             await message.answer(text='Оплата прошла успешно', reply_markup=keyboard)
+            await message.delete()
