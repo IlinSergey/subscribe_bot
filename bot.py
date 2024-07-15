@@ -1,7 +1,6 @@
 import asyncio
 import contextlib
 import logging
-import sys
 
 from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -49,5 +48,5 @@ async def main() -> None:
 
 if __name__ == '__main__':
     with contextlib.suppress(KeyboardInterrupt, SystemExit):
-        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        logging.basicConfig(level=logging.WARNING, filename='bot.log', filemode='a',)
         asyncio.run(main())
