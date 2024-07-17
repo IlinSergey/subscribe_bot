@@ -48,5 +48,6 @@ async def main() -> None:
 
 if __name__ == '__main__':
     with contextlib.suppress(KeyboardInterrupt, SystemExit):
-        logging.basicConfig(level=logging.WARNING, filename='bot.log', filemode='a',)
+        logging.basicConfig(level=logging.INFO, filename='bot.log',
+                            filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
         asyncio.run(main())

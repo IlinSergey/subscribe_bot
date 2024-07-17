@@ -24,6 +24,7 @@ async def check_subscription(bot: Bot) -> None:
     Returns:
         None
     """
+    logging.info('*** Checking subscription status...')
     result = await Base.db_session.execute(select(User))
     users = result.scalars().all()
     admins = await check_admins(bot)
@@ -37,6 +38,7 @@ async def check_subscription(bot: Bot) -> None:
                     logging.info(f'User {user.tg_user_id} was banned')
                 except TelegramError as err:
                     logging.error(err)
+    logging.info('*** Subscription status check completed')
 
 
 async def unban_user(bot: Bot, user_id: int) -> None:
@@ -83,6 +85,7 @@ async def subscribe_renewal_reminder(bot: Bot, expire: int = 1) -> None:
     Returns:
         None
     """
+    logging.info('*** Sending subscription renewal reminder...')
     result = await Base.db_session.execute(select(User))
     users = result.scalars().all()
     current_date = datetime.datetime.now().date()
@@ -99,3 +102,4 @@ async def subscribe_renewal_reminder(bot: Bot, expire: int = 1) -> None:
                             reply_markup=await get_subscribe_menu())
                     except TelegramError as err:
                         logging.error(err)
+    logging.info('*** Subscription renewal reminder sent')
