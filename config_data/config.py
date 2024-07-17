@@ -24,11 +24,17 @@ class DataBase:
 
 
 @dataclass
+class Sentry:
+    dsn: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     yookassa: YooKassa
     db: DataBase
     channel_id: ChannelID
+    sentry: Sentry
 
 
 def load_config(path: str | None = None) -> Config:
@@ -38,5 +44,6 @@ def load_config(path: str | None = None) -> Config:
         tg_bot=TgBot(token=env('BOT_TOKEN')),
         yookassa=YooKassa(secret_key=env('YOOTOKEN')),
         db=DataBase(path=env('DB_PATH')),
-        channel_id=ChannelID(channel_id=env('CHANNEL_ID'))
+        channel_id=ChannelID(channel_id=env('CHANNEL_ID')),
+        sentry=Sentry(dsn=env('SENTRY_DSN')),
         )
