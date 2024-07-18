@@ -52,7 +52,7 @@ async def main() -> None:
 if __name__ == '__main__':
     try:
         with contextlib.suppress(KeyboardInterrupt, SystemExit):
-            logging.basicConfig(level=logging.INFO, filename='bot.log',
+            logging.basicConfig(level=logging.ERROR, filename='bot.log',
                                 filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
             asyncio.run(main())
     except Exception as err:
