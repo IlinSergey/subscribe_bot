@@ -5,7 +5,6 @@ import logging
 import sentry_sdk
 from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.triggers.interval import IntervalTrigger
 
 from config_data.config import Config, load_config
@@ -35,10 +34,9 @@ async def main() -> None:
     dp.include_router(user_handlers.router)
     dp.include_router(subscribe_handlers.router)
 
-    executor = ThreadPoolExecutor(max_workers=10)
-    scheduler = AsyncIOScheduler(executor=executor)
-    scheduler.add_job(check_subscription, IntervalTrigger(minutes=1), args=[bot])
-    scheduler.add_job(subscribe_renewal_reminder, IntervalTrigger(minutes=1), args=[bot])
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(check_subscription, IntervalTrigger(minutes=10), args=[bot])
+    scheduler.add_job(subscribe_renewal_reminder, IntervalTrigger(seconds=10), args=[bot])
 
     scheduler.start()
 
@@ -54,7 +52,7 @@ async def main() -> None:
 if __name__ == '__main__':
     try:
         with contextlib.suppress(KeyboardInterrupt, SystemExit):
-            logging.basicConfig(level=logging.WARNING, filename='bot.log',
+            logging.basicConfig(level=logging.INFO, filename='bot.log',
                                 filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
             asyncio.run(main())
     except Exception as err:

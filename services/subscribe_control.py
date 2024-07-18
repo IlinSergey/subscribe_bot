@@ -17,7 +17,7 @@ config: Config = load_config()
 async def check_subscription(bot: Bot) -> None:
     """
     Checks the subscription status of all users in the database and bans any inactive users.
-
++
     Args:
         bot (Bot): The Telegram bot instance.
 
@@ -25,6 +25,7 @@ async def check_subscription(bot: Bot) -> None:
         None
     """
     result = await Base.db_session.execute(select(User))
+    await Base.db_session.commit()
     users = result.scalars().all()
     admins = await check_admins(bot)
     for user in users:
@@ -84,6 +85,7 @@ async def subscribe_renewal_reminder(bot: Bot, expire: int = 1) -> None:
         None
     """
     result = await Base.db_session.execute(select(User))
+    await Base.db_session.commit()
     users = result.scalars().all()
     current_date = datetime.datetime.now().date()
     for user in users:

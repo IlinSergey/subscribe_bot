@@ -16,6 +16,7 @@ async def get_user(tg_user_id: int) -> User | None:
         User or None: The user with the specified 'tg_user_id' or None if not found.
     """
     result = await Base.db_session.execute(select(User).where(User.tg_user_id == tg_user_id))
+    await Base.db_session.commit()
     result = result.scalars().first()
     return result
 
