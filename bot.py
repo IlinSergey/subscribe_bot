@@ -35,8 +35,8 @@ async def main() -> None:
     dp.include_router(subscribe_handlers.router)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(check_subscription, IntervalTrigger(minutes=10), args=[bot])
-    scheduler.add_job(subscribe_renewal_reminder, IntervalTrigger(seconds=10), args=[bot])
+    scheduler.add_job(check_subscription, IntervalTrigger(hours=1), args=[bot])
+    scheduler.add_job(subscribe_renewal_reminder, IntervalTrigger(days=1), args=[bot])
 
     scheduler.start()
 
